@@ -17,8 +17,6 @@ type Storage struct {
 
 const defaultPerm = 0774
 
-var ErrNoSavedPages = errors.New("no saved pages")
-
 func New(basePath string) Storage {
 	return Storage{basePath: basePath}
 }
@@ -64,7 +62,7 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	}
 
 	if len(files) == 0 {
-		return nil, ErrNoSavedPages
+		return nil, storage.ErrNoSavedPages
 	}
 
 	// 0-9
@@ -94,7 +92,7 @@ func (s Storage) Remove(p *storage.Page) error {
 }
 
 // IsExist()
-func (s Storage) isExists(p *storage.Page) (bool, error) {
+func (s Storage) IsExists(p *storage.Page) (bool, error) {
 	fileName, err := fileName(p)
 	if err != nil {
 		return false, e.Wrap("can't remove file", err)

@@ -2,23 +2,39 @@ package main
 
 import (
 	"flag"
-	"linksaver/clients/telegram"
+	tgClient "linksaver/clients/telegram"
+	eventconsumer "linksaver/consumer/event-consumer"
+	tg "linksaver/events/telegram2"
+	"linksaver/storage/files"
 	"log"
 )
 
 const (
-	tgBotHost = "api.telegram.org"
+	tgBotHost   = "api.telegram.org"
+	storagePath = "storage"
+	batchSize   = 100
 )
 
 func main() {
 	// token = flags.Get(token)
+
 	// token := mustToken()
 
-	tgClient := telegram.New(tgBotHost, mustToken()) // телеграмм-клиент
+	// fetcher = fetcher.New() --- получает новые события из API TG
 
-	// fetcher = fetcher.New() --- получает новые события
+	// processor = processor.New() --- после обработки отправит новые сообщения в TG
 
-	// processor = processor.New() --- после обработки отправит новые сообщения
+	tgClient := tgClient.New(tgBotHost, mustToken()) // телеграмм-клиент
+
+	eventsProcessor := tg.New(tgClient, files.New(storagePath))
+
+	log.Print("service started")
+
+	consumer := eventconsumer.New(eventsProcessor, eventsProcessor, batchSize)
+
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service is stopped", err)
+	}
 
 	// consumer.Start(fetcher, processor)
 }
@@ -35,4 +51,5 @@ func mustToken() string {
 	if *token == "" {
 		log.Fatal("token is not specified")
 	}
+	return *token
 }

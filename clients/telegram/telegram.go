@@ -24,8 +24,8 @@ const (
 	sendMessageMethod = "sendMessageMethod"
 )
 
-func New(host, token string) Client {
-	return Client{
+func New(host, token string) *Client {
+	return &Client{
 		host:     host,
 		basePath: newBasePath(token),
 		client:   http.Client{},
