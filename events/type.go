@@ -8,7 +8,7 @@ type Processor interface {
 	Process(e Event) error
 }
 
-type Type int // кастомный тип
+type Type int
 
 const (
 	Unknown Type = iota

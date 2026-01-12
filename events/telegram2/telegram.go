@@ -2,6 +2,7 @@ package telegram2
 
 import (
 	"errors"
+
 	"linksaver/clients/telegram"
 	"linksaver/events"
 	"linksaver/lib/e"
@@ -24,6 +25,7 @@ var (
 	ErrUnknownMetaType  = errors.New("unknown meta type")
 )
 
+// Creates new Proccessor
 func New(client *telegram.Client, storage storage.Storage) *Processor {
 	return &Processor{
 		tg:      client,
@@ -31,6 +33,7 @@ func New(client *telegram.Client, storage storage.Storage) *Processor {
 	}
 }
 
+// Receives some number of events
 func (p *Processor) Fetch(limit int) ([]events.Event, error) {
 	updates, err := p.tg.Updates(p.offset, limit)
 	if err != nil {
@@ -52,6 +55,7 @@ func (p *Processor) Fetch(limit int) ([]events.Event, error) {
 	return res, nil
 }
 
+// Checks if incoming message is a command
 func (p *Processor) Process(event events.Event) error {
 	switch event.Type {
 	case events.Message:
@@ -61,6 +65,7 @@ func (p *Processor) Process(event events.Event) error {
 	}
 }
 
+// Directs incomin event to proccessing
 func (p *Processor) processMessage(event events.Event) error {
 	meta, err := meta(event)
 	if err != nil {
@@ -74,6 +79,7 @@ func (p *Processor) processMessage(event events.Event) error {
 
 }
 
+// Checks if event is valid for Meta struct
 func meta(event events.Event) (Meta, error) {
 	res, ok := event.Meta.(Meta)
 	if !ok {
@@ -89,7 +95,6 @@ func event(upd telegram.Update) events.Event {
 		Text: fetchText(upd),
 	}
 
-	// chatID, username
 	if updType == events.Message {
 		res.Meta = Meta{
 			ChatID:   upd.Message.Chat.ID,

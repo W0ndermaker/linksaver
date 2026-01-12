@@ -17,13 +17,12 @@ type Client struct {
 	client   http.Client
 }
 
-// tg-bot.com/bot<token>
-
 const (
 	getUpdatesMethod  = "getUpdates"
-	sendMessageMethod = "sendMessageMethod"
+	sendMessageMethod = "sendMessage"
 )
 
+// Creates new example of Client struct
 func New(host, token string) *Client {
 	return &Client{
 		host:     host,
@@ -36,6 +35,7 @@ func newBasePath(token string) string {
 	return "bot" + token
 }
 
+// Collects and returns updates(events) arriving from Telegram Bot
 func (c *Client) Updates(offset, limit int) (updates []Update, err error) {
 	defer func() {
 		err = e.WrapIfErr("can't get updates", err)
@@ -45,7 +45,6 @@ func (c *Client) Updates(offset, limit int) (updates []Update, err error) {
 	q.Add("offset", strconv.Itoa(offset))
 	q.Add("limit", strconv.Itoa(limit))
 
-	// make request <- getUpdates
 	data, err := c.makeRequest(getUpdatesMethod, q)
 	if err != nil {
 		return nil, err
@@ -60,6 +59,7 @@ func (c *Client) Updates(offset, limit int) (updates []Update, err error) {
 	return res.Result, nil
 }
 
+// Sends message to Telegram Bot
 func (c *Client) SendMessage(chatID int, text string) error {
 	q := url.Values{}
 	q.Add("chat_id", strconv.Itoa(chatID))
@@ -73,6 +73,7 @@ func (c *Client) SendMessage(chatID int, text string) error {
 	return nil
 }
 
+// Sends HTTP Requests
 func (c *Client) makeRequest(method string, query url.Values) (data []byte, err error) {
 	defer func() {
 		err = e.WrapIfErr("can't make requset", err)

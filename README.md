@@ -1,3 +1,3 @@
 #linksaver
 
-Телеграм-бот для хранения ссылок на книги, статьи и т.д. Из общего списка ссылок выбирает случайную и скидывает.
+Telegram Bot for saving links to anything(videos, articles, books and etc.).

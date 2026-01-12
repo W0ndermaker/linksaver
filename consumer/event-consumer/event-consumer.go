@@ -1,9 +1,11 @@
 package eventconsumer
 
 import (
-	"linksaver/events"
+	"fmt"
 	"log"
 	"time"
+
+	"linksaver/events"
 )
 
 type Consumer struct {
@@ -23,6 +25,7 @@ func New(fetcher events.Fetcher, processor events.Processor, batchSize int) Cons
 func (c Consumer) Start() error {
 	for {
 		gotEvents, err := c.fetcher.Fetch(c.batchSize)
+		fmt.Println("Got events:", len(gotEvents))
 		if err != nil {
 			log.Printf("[ERR] consumer: %s", err.Error())
 

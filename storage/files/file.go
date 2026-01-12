@@ -4,11 +4,12 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"linksaver/lib/e"
-	"linksaver/storage"
 	"math/rand"
 	"os"
 	"path/filepath"
+
+	"linksaver/lib/e"
+	"linksaver/storage"
 )
 
 type Storage struct {
@@ -22,29 +23,29 @@ func New(basePath string) Storage {
 }
 
 func (s Storage) Save(page *storage.Page) (err error) {
-	defer func() { err = e.WrapIfErr("can't save page", err) }() // обработка ошибок
+	defer func() { err = e.WrapIfErr("can't save page", err) }()
 
-	fPath := filepath.Join(s.basePath, page.UserName) // путь до директории, где будет сохраняться файл
+	fPath := filepath.Join(s.basePath, page.UserName)
 
-	if err := os.MkdirAll(fPath, defaultPerm); err != nil { // создание директорий в нужном пути
+	if err := os.MkdirAll(fPath, defaultPerm); err != nil {
 		return err
 	}
 
-	fName, err := fileName(page) // имя файла
+	fName, err := fileName(page)
 	if err != nil {
 		return err
 	}
 
-	fPath = filepath.Join(fPath, fName) // путь + имя файла
+	fPath = filepath.Join(fPath, fName)
 
-	file, err := os.Create(fPath) // создание файла
+	file, err := os.Create(fPath)
 	if err != nil {
 		return err
 	}
 
 	defer func() { _ = file.Close() }()
 
-	if err := gob.NewEncoder(file).Encode(page); err != nil { // запись в нужном формате
+	if err := gob.NewEncoder(file).Encode(page); err != nil {
 		return err
 	}
 
@@ -65,13 +66,10 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 		return nil, storage.ErrNoSavedPages
 	}
 
-	// 0-9
-	//rand.Seed(time.Now().UnixNano())
 	n := rand.Intn(len(files))
 
 	file := files[n]
 
-	// open decode
 	return s.decodePage(filepath.Join(path, file.Name()))
 }
 
@@ -91,7 +89,6 @@ func (s Storage) Remove(p *storage.Page) error {
 	return nil
 }
 
-// IsExist()
 func (s Storage) IsExists(p *storage.Page) (bool, error) {
 	fileName, err := fileName(p)
 	if err != nil {

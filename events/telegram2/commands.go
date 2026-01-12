@@ -2,11 +2,12 @@ package telegram2
 
 import (
 	"errors"
-	"linksaver/lib/e"
-	"linksaver/storage"
 	"log"
 	"net/url"
 	"strings"
+
+	"linksaver/lib/e"
+	"linksaver/storage"
 )
 
 const (
@@ -15,15 +16,11 @@ const (
 	StartCmd = "/start"
 )
 
+// Process event coming from Telegram Bot and sends message to it
 func (p *Processor) cmd(text string, chatID int, username string) error {
 	text = strings.TrimSpace(text)
 
 	log.Printf("got new command '%s' from '%s'", text, username)
-
-	// add page: http://...
-	// rnd page: /rnd
-	// help: /help
-	// start: /start: hi + help
 
 	if isAddCmd(text) {
 		return p.savePage(chatID, text, username)
@@ -43,6 +40,7 @@ func (p *Processor) cmd(text string, chatID int, username string) error {
 
 }
 
+// Saves incoming URL to storage
 func (p *Processor) savePage(chatID int, pageURL string, username string) (err error) {
 	defer func() { err = e.WrapIfErr("can't do command: save page", err) }()
 
@@ -69,6 +67,7 @@ func (p *Processor) savePage(chatID int, pageURL string, username string) (err e
 	return nil
 }
 
+// Sends random URL from storage
 func (p *Processor) sendRandom(chatID int, username string) (err error) {
 	defer func() { err = e.WrapIfErr("can't do command: can't send random", err) }()
 
@@ -88,20 +87,24 @@ func (p *Processor) sendRandom(chatID int, username string) (err error) {
 
 }
 
+// Sends message for /help
 func (p *Processor) sendHelp(chatID int) error {
 	return p.tg.SendMessage(chatID, msgHelp)
 }
 
+// Sends message for /start
 func (p *Processor) sendHello(chatID int) error {
 	return p.tg.SendMessage(chatID, msgHello)
 }
 
+// Checks if URL was sent by user
 func isAddCmd(text string) bool {
 	return isURL(text)
 }
 
+// Checks if URL is valid
+// Valid URL: http://ya.com
 func isURL(text string) bool {
-	// http://ya.ru - валидная ссылка
 	u, err := url.Parse(text)
 	return err == nil && u.Host != ""
 }
